@@ -44,14 +44,42 @@ class InvalidLocationError(Exception):
 
 
 def _get_user_page(school_id, user_type, user_id, week=""):
+
+    ################################################
+    # ENTER YOUR LECTIO USERNAME AND PASSWORD HERE #
+    ################################################
+    USERNAME = "YOUR_USERNAME_HERE"
+    PASSWORD = "YOUR_PASSWORD_HERE"
+    ################################################
+
     URL_TEMPLATE = "https://www.lectio.dk/lectio/{0}/" \
                    "SkemaNy.aspx?type={1}&{1}id={2}&week={3}"
 
-    r = requests.get(URL_TEMPLATE.format(school_id,
-                                         USER_TYPE[user_type],
-                                         user_id,
-                                         week),
-                     allow_redirects=False)
+    LOGIN_URL = "https://www.lectio.dk/lectio/165/login.aspx"
+
+    # Start requests session and get eventvalidation key
+    s = requests.Session()
+    result = s.get(LOGIN_URL)
+    tree = html.fromstring(result.text)
+    authenticity_token = list(set(tree.xpath("//input[@name='__EVENTVALIDATION']/@value")))[0]
+
+    # Create payload
+    payload = {
+        "m$Content$username2": USERNAME,
+        "m$Content$password2": PASSWORD,
+        "m$Content$passwordHidden": PASSWORD,
+        "__EVENTVALIDATION": authenticity_token,
+        "__EVENTTARGET": "m$Content$submitbtn2",
+        "__EVENTARGUMENT": "",
+        "LectioPostbackId": ""
+    }
+
+    # Perform login
+    result = s.post(LOGIN_URL, data = payload, headers = dict(referer = LOGIN_URL))
+
+    # Scrape url
+    r = s.get(URL_TEMPLATE.format(school_id, USER_TYPE[user_type], user_id, week), headers = dict(referer = URL_TEMPLATE.format(school_id, USER_TYPE[user_type], user_id, week)))
+
     return r
 
 
