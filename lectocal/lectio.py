@@ -55,7 +55,7 @@ def _get_user_page(school_id, user_type, user_id, week=""):
     URL_TEMPLATE = "https://www.lectio.dk/lectio/{0}/" \
                    "SkemaNy.aspx?type={1}&{1}id={2}&week={3}"
 
-    LOGIN_URL = "https://www.lectio.dk/lectio/165/login.aspx"
+    LOGIN_URL = "https://www.lectio.dk/lectio/{0}/login.aspx"
 
     # Start requests session and get eventvalidation key
     s = requests.Session()
