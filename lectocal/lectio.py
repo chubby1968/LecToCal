@@ -226,6 +226,8 @@ def _get_info_from_title(title):
 def _parse_element_to_lesson(element):
     link = element.get("href")
     id = None
+    if ("javascript: void" == format(link)):
+        link = None
     if link:
         id = _get_id_from_link(link)
         link = _get_complete_link(link)
